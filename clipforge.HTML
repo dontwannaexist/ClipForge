@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClipForge - Transform Videos for Shorts & Reels</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .dropzone {
+            border: 2px dashed #9CA3AF;
+            transition: all 0.3s;
+        }
+        .dropzone.active {
+            border-color: #3B82F6;
+            background-color: #EFF6FF;
+        }
+        .video-preview {
+            aspect-ratio: 9/16;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- Navbar -->
+        <nav class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <i data-feather="scissors" class="text-blue-500 mr-2"></i>
+                        <span class="text-xl font-bold text-gray-900">ClipForge</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+                        <button onclick="window.location.href='#'" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">Home</button>
+                        <button onclick="window.location.href='#youtube'" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">YouTube</button>
+                        <button onclick="window.location.href='#upload'" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100">Upload</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-grow">
+            <!-- Home Page -->
+            <section id="home" class="py-12 px-4 sm:px-6 lg:px-8">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h1 class="text-4xl font-bold text-gray-900 mb-6" data-aos="fade-up">Transform Long Videos into Short Clips</h1>
+                    <p class="text-xl text-gray-600 mb-8" data-aos="fade-up" data-aos-delay="100">
+                        Perfect for YouTube Shorts and Instagram Reels. Just paste a YouTube link or upload your video.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4" data-aos="fade-up" data-aos-delay="200">
+                        <a href="#youtube" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition flex items-center justify-center">
+                            <i data-feather="youtube" class="mr-2"></i> Analyze YouTube Video
+                        </a>
+                        <a href="#upload" class="px-6 py-3 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-900 transition flex items-center justify-center">
+                            <i data-feather="upload" class="mr-2"></i> Upload Video
+                        </a>
+                    </div>
+                </div>
+                <div class="mt-16 max-w-7xl mx-auto" data-aos="fade-up" data-aos-delay="300">
+                    <img src="http://static.photos/technology/1024x576/1" alt="ClipForge in action" class="rounded-xl shadow-lg w-full">
+                </div>
+            </section>
+
+            <!-- YouTube Page -->
+            <section id="youtube" class="py-12 px-4 sm:px-6 lg:px-8 hidden">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Analyze YouTube Video</h2>
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div class="flex">
+                            <input type="text" id="youtube-url" placeholder="Paste YouTube URL here..." class="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500">
+                            <button id="analyze-btn" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-r-lg hover:bg-blue-700 transition">Analyze</button>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-2">Example: https://www.youtube.com/watch?v=dQw4w9WgXcQ</p>
+                    </div>
+                    <div id="youtube-results" class="mt-8 hidden">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Generated Clips</h3>
+                        <div id="clips-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Clips will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Upload Page -->
+            <section id="upload" class="py-12 px-4 sm:px-6 lg:px-8 hidden">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Upload Video</h2>
+                    <div class="bg-white p-6 rounded-xl shadow-sm">
+                        <div id="dropzone" class="dropzone p-12 rounded-lg text-center cursor-pointer">
+                            <div class="flex flex-col items-center justify-center">
+                                <i data-feather="upload-cloud" class="w-12 h-12 text-gray-400 mb-4"></i>
+                                <p class="text-lg text-gray-700 mb-2">Drag & drop your video here</p>
+                                <p class="text-sm text-gray-500 mb-4">or</p>
+                                <input type="file" id="file-upload" class="hidden" accept="video/*">
+                                <label for="file-upload" class="px-4 py-2 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-900 transition cursor-pointer">
+                                    Select Video File
+                                </label>
+                                <p class="text-xs text-gray-500 mt-4">Supports MP4, MOV, AVI (max 500MB)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="upload-results" class="mt-8 hidden">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4">Generated Clips</h3>
+                        <div id="uploaded-clips-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Clips will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-gray-200 mt-12">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <p class="text-center text-gray-500 text-sm">
+                    &copy; 2023 ClipForge. All rights reserved.
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize AOS and Feather Icons
+        AOS.init();
+        feather.replace();
+
+        // Simple router to show/hide sections
+        function showSection(sectionId) {
+            document.querySelectorAll('section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        // Handle hash changes
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.substring(1);
+            if (hash === 'youtube' || hash === 'upload') {
+                showSection(hash);
+            } else {
+                showSection('home');
+            }
+        });
+
+        // Initialize with home page
+        if (!window.location.hash || window.location.hash === '#') {
+            showSection('home');
+        } else {
+            const hash = window.location.hash.substring(1);
+            showSection(hash);
+        }
+
+        // YouTube form handler
+        document.getElementById('analyze-btn').addEventListener('click', async () => {
+            const url = document.getElementById('youtube-url').value;
+            if (!url) return alert('Please enter a YouTube URL');
+            
+            // Show loading state
+            const btn = document.getElementById('analyze-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i data-feather="loader" class="animate-spin mr-2"></i> Analyzing...';
+            feather.replace();
+
+            try {
+                // In a real app, this would call your FastAPI backend
+                // const response = await fetch('/youtube', {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify({ url })
+                // });
+                // const data = await response.json();
+                
+                // Simulate API call with mock data
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                const mockData = {
+                    clips: [
+                        { id: 'clip1', title: 'Exciting Moment', url: '#' },
+                        { id: 'clip2', title: 'Key Highlight', url: '#' },
+                        { id: 'clip3', title: 'Best Part', url: '#' }
+                    ]
+                };
+
+                // Display results
+                const grid = document.getElementById('clips-grid');
+                grid.innerHTML = '';
+                mockData.clips.forEach(clip => {
+                    const clipElement = document.createElement('div');
+                    clipElement.className = 'bg-white rounded-xl shadow-sm overflow-hidden';
+                    clipElement.innerHTML = `
+                        <div class="video-preview bg-gray-200 flex items-center justify-center">
+                            <i data-feather="play" class="text-gray-400 w-12 h-12"></i>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-medium text-gray-900 mb-2">${clip.title}</h4>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-500">30s</span>
+                                <a href="${clip.url}" class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition flex items-center">
+                                    <i data-feather="download" class="w-4 h-4 mr-1"></i> Download
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(clipElement);
+                });
+                document.getElementById('youtube-results').classList.remove('hidden');
+            } catch (error) {
+                console.error(error);
+                alert('Failed to analyze video. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Analyze';
+                feather.replace();
+            }
+        });
+
+        // Upload form handler
+        const dropzone = document.getElementById('dropzone');
+        const fileUpload = document.getElementById('file-upload');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropzone.classList.add('active');
+        }
+
+        function unhighlight() {
+            dropzone.classList.remove('active');
+        }
+
+        dropzone.addEventListener('drop', handleDrop, false);
+        fileUpload.addEventListener('change', handleFiles, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles({ target: { files } });
+        }
+
+        function handleFiles(e) {
+            const files = e.target.files;
+            if (!files.length) return;
+
+            const file = files[0];
+            if (!file.type.startsWith('video/')) {
+                return alert('Please upload a video file');
+            }
+
+            // Show loading state
+            dropzone.innerHTML = '<div class="flex items-center justify-center"><i data-feather="loader" class="animate-spin mr-2"></i> Processing video...</div>';
+            feather.replace();
+
+            // In a real app, this would upload to your FastAPI backend
+            // const formData = new FormData();
+            // formData.append('file', file);
+            // const response = await fetch('/upload', {
+            //     method: 'POST',
+            //     body: formData
+            // });
+            // const data = await response.json();
+
+            // Simulate API call with mock data
+            setTimeout(() => {
+                const mockData = {
+                    clips: [
+                        { id: 'clip1', title: 'Highlight #1', url: '#' },
+                        { id: 'clip2', title: 'Highlight #2', url: '#' },
+                        { id: 'clip3', title: 'Highlight #3', url: '#' }
+                    ]
+                };
+
+                // Display results
+                const grid = document.getElementById('uploaded-clips-grid');
+                grid.innerHTML = '';
+                mockData.clips.forEach(clip => {
+                    const clipElement = document.createElement('div');
+                    clipElement.className = 'bg-white rounded-xl shadow-sm overflow-hidden';
+                    clipElement.innerHTML = `
+                        <div class="video-preview bg-gray-200 flex items-center justify-center">
+                            <i data-feather="play" class="text-gray-400 w-12 h-12"></i>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="font-medium text-gray-900 mb-2">${clip.title}</h4>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-500">45s</span>
+                                <a href="${clip.url}" class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition flex items-center">
+                                    <i data-feather="download" class="w-4 h-4 mr-1"></i> Download
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(clipElement);
+                });
+                document.getElementById('upload-results').classList.remove('hidden');
+                
+                // Reset dropzone
+                dropzone.innerHTML = `
+                    <div class="flex flex-col items-center justify-center">
+                        <i data-feather="check-circle" class="w-12 h-12 text-green-500 mb-4"></i>
+                        <p class="text-lg text-gray-700 mb-2">Video processed successfully!</p>
+                        <button onclick="location.reload()" class="px-4 py-2 bg-gray-800 text-white font-medium rounded-lg hover:bg-gray-900 transition mt-4">
+                            Process Another Video
+                        </button>
+                    </div>
+                `;
+                feather.replace();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
